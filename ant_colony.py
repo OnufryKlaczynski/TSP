@@ -27,25 +27,26 @@ class AntColonyOptimization():
     def detour(self,):
         pass
     
-    def restet_ants(self, starting_index):
+    def _restet_ants(self, starting_index):
         for ant in self.ants:
             ant.reset(starting_index)
 
     def calculate(self, starting_index = 0):
         for k in range(self.rotations):
+
             for _ in range(self.dimension):
 
                 pheromones_matrix_naive = self._create_pheromones_matrix(0)
                 last_ant_index = 0
                 for i, ant in enumerate(self.ants):
 
-                    if len(ant.towns_processed) >= self.dimension-1:
-                        if(len(ant.towns_processed) == self.dimension-1):
-                            new_dist = ant.calculate_full_path()
-                            if(self.best_distance > new_dist):
-                                self.best_distance = new_dist
-                                self.best_ant_index = i
-                                self.best_ant = self.ants[i]
+                    if len(ant.towns_processed) == self.dimension-1:
+                        
+                        new_dist = ant.calculate_full_path()
+                        if(self.best_distance > new_dist):
+                            self.best_distance = new_dist
+                            self.best_ant_index = i
+                            self.best_ant = self.ants[i]
                         continue
 
                     current_town = ant.current_town
@@ -55,7 +56,7 @@ class AntColonyOptimization():
                 self._update_pheromones(pheromones_matrix_naive)
             
             if(k < self.rotations-1):
-                self.restet_ants(self.towns[starting_index])
+                self._restet_ants(self.towns[starting_index])
 
             
         
@@ -119,8 +120,8 @@ class Ant():
             if(town != self.current_town and town not in self.towns_processed):
                 distance = Town.distance(town, self.current_town)
 
-                rt = (pheromones_matrix[self.current_town.index][town.index]**Alpha) * ((attactivnes_ratio/distance)**Beta)
-                ratios.append(rt)
+                ratio = (pheromones_matrix[self.current_town.index][town.index]**Alpha) * ((attactivnes_ratio/distance)**Beta)
+                ratios.append(ratio)
                 allowed_towns.append(town)
 
         denominator = reduce(lambda x,y: x+y, ratios)
