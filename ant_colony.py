@@ -7,18 +7,6 @@ class AntColonyOptimization():
 
 
     def __init__(self, dimension, towns, starting_ant_number, ant_growth, rotations, pheromone_decay, Q, Alpha, Beta):
-        """
-
-        :param dimension: number of towns
-        :param towns: list of towns
-        :param starting_ant_number: starting number os ants
-        :param ant_growth: ant growth after every iteration
-        :param rotations: iterations of program must be > than dimension
-        :param pheromone_decay: pheromone_decat ratio
-        :param Q:
-        :param Alpha:
-        :param Beta:
-        """
         self.towns = towns
         self.dimension = dimension
         self.ant_number = starting_ant_number
@@ -34,42 +22,55 @@ class AntColonyOptimization():
         self.ant_growth = ant_growth
         self.best_distance = float('inf')
         self.best_ant_index = None
+
+
+    def detour(self,):
+        pass
+    
+    def restet_ants(self, starting_index):
+        for ant in self.ants:
+            ant.reset(starting_index)
+
     def calculate(self, starting_index = 0):
+        for k in range(self.rotations):
+            for _ in range(self.dimension):
 
-        for _ in range(self.rotations):
+                pheromones_matrix_naive = self._create_pheromones_matrix(0)
+                last_ant_index = 0
+                for i, ant in enumerate(self.ants):
 
-            pheromones_matrix_naive = self._create_pheromones_matrix(0)
-            last_ant_index = 0
-            for i, ant in enumerate(self.ants):
+                    if len(ant.towns_processed) >= self.dimension-1:
+                        if(len(ant.towns_processed) == self.dimension-1):
+                            new_dist = ant.calculate_full_path()
+                            if(self.best_distance > new_dist):
+                                self.best_distance = new_dist
+                                self.best_ant_index = i
+                                self.best_ant = self.ants[i]
+                        continue
 
-                if len(ant.towns_processed) >= self.dimension-1:
-                    if(len(ant.towns_processed) == self.dimension-1):
-                        new_dist = ant.calculate_full_path()
-                        if(self.best_distance > new_dist):
-                            self.best_distance = new_dist
-                            self.best_ant_index = i
-                    continue
+                    current_town = ant.current_town
+                    next_town, distance = ant.calculate_next_town(self.towns, self.pheromones_matrix, self.Alpha, self.Beta)
+                    self._update_naive_pheromone(pheromones_matrix_naive, current_town, next_town, distance)
 
-                current_town = ant.current_town
-                next_town, distance = ant.calculate_next_town(self.towns, self.pheromones_matrix, self.Alpha, self.Beta)
-                self._update_naive_pheromone(pheromones_matrix_naive, current_town, next_town, distance)
+                self._update_pheromones(pheromones_matrix_naive)
+            
+            if(k < self.rotations-1):
+                self.restet_ants(self.towns[starting_index])
 
-            self._update_pheromones(pheromones_matrix_naive)
-            self._append_ants(self.ant_growth, 0)
-
+            
         
-       
 
         distance = 0
-        for i in range(len(self.ants[self.best_ant_index].towns_processed)-1):
-            townA =self.ants[self.best_ant_index].towns_processed[i]
-            townB = self.ants[self.best_ant_index].towns_processed[i+1]
+        for i in range(len(self.best_ant.towns_processed)-1):
+            townA =self.best_ant.towns_processed[i]
+            townB = self.best_ant.towns_processed[i+1]
             distance += Town.distance(townA, townB )
-        last_town = self.ants[self.best_ant_index].towns_processed[-1]
+        last_town = self.best_ant.towns_processed[-1]
         distance += Town.distance(self.towns[starting_index], last_town)
-        self.ants[self.best_ant_index].towns_processed.append(self.towns[starting_index])
-        self.order = self.ants[self.best_ant_index].towns_processed
+        self.best_ant.towns_processed.append(self.towns[starting_index])
+        self.order = self.best_ant.towns_processed
         self.distance = distance
+
         return distance
 
 
@@ -139,3 +140,8 @@ class Ant():
         for index in range(len(self.towns_processed)-1):
             distance += Town.distance(self.towns_processed[index], self.towns_processed[index+1])
         return distance
+
+    def reset(self, starting_town):
+        self.current_town = starting_town
+        self.towns_processed = []
+    
