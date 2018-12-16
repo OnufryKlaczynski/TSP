@@ -23,13 +23,13 @@ def load_data_extended(file_name):
     with open(file_name, 'r') as f:
         for _ in range(3):
             f.readline()
-        dimension = int(f.readline().split(" ")[2])
+        dimension = int(f.readline().split(" ")[1])
         for _ in range(2):
             f.readline()
         for _ in range(dimension):
             
             index, x, y = f.readline().strip().split(" ")
-            towns.append(Town(int(x), int(y), int(index)-1))
+            towns.append(Town(int(float(x)), int(float(y)), int(float(index))-1))
     
     return dimension, towns
 
@@ -68,21 +68,22 @@ def draw_path(order, title=" "):
 
 if __name__ == "__main__":
 
-    # dimension, towns = load_data_extended("att532.txt")
+    dimension, towns = load_data_extended("berlin52.txt")
     # dist = NearestNeighbourAlgorith(dimension, towns).calculate(0)
     # print(dist)
 
-    dimension, towns = load_data_trimmed("bayg29.txt")
-    NNA = NearestNeighbourAlgorith(dimension, towns)
-    dist = NNA.calculate(0)
-    print(dist)
-    draw_path(NNA.order, "NNA")
+    # dimension, towns = load_data_trimmed("bayg29.txt")
+    # NNA = NearestNeighbourAlgorith(dimension, towns)
+    # dist = NNA.calculate(0)
+    # print(dist)
+    # draw_path(NNA.order, "NNA") 
 
-    ACO = AntColonyOptimization(dimension, towns, starting_ant_number=80,
-                                ant_growth=70, rotations=50, pheromone_decay=0.3,
-                                Q=10, Alpha=1, Beta=4)
+    ACO = AntColonyOptimization(dimension, towns, starting_ant_number=30,
+                                rotations=4*dimension, pheromone_decay=0.4,
+                                Q=10, Alpha=1, Beta=3)
     dist = ACO.calculate(0)
     print(dist)
+    print(len(ACO.order))
     draw_path(ACO.order, "ACO")
 
 

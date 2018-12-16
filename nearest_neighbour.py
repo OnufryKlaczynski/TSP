@@ -25,7 +25,7 @@ class NearestNeighbourAlgorith:
 
         for town in self.towns:
             if townA != town and town not in processed:
-                cur_dist = Town.distance(townA, town)
+                cur_dist = townA.distance(town)
                 if(cur_dist < minimum):
                     minimum = cur_dist
                     next_town = town
@@ -43,7 +43,7 @@ class NearestNeighbourAlgorith:
             processed.append(current_town)
             cur_distance += add_distance
 
-        cur_distance += Town.distance(current_town, self.towns[starting_index])
+        cur_distance += current_town.distance(self.towns[starting_index])
         self.distance = cur_distance
         processed.append(self.towns[starting_index])
         self.order = processed

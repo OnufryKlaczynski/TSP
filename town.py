@@ -19,8 +19,8 @@ class Town:
 
         return Town.distance(self, other)
 
-    @staticmethod
-    def distance(townA, townB):
+    
+    def distance(self, other):
 
-        return math.sqrt((townA.x - townB.x)**2 + (townA.y - townB.y)**2)
+        return math.sqrt((self.x - other.x)**2 + (self.y - other.y)**2)
 
